@@ -67,7 +67,7 @@ var mixin = {
 
             formData.append( 'action', 'erp_crm_activity_attachment' );
             el.css( 'display', 'block' );
-            
+
             $.each( input, function( index, object ) {
                 $.each( object.files, function( i, file ) {
                     formData.append( 'files[]', file );
@@ -458,7 +458,7 @@ Vue.component( 'email-note', {
                 action      : 'erp-crm-load-save-replies-data',
                 template_id : this.emailTemplates,
                 contact_id  : this.feedData.user_id,
-                _wpnonce    : wpCRMvue.nonce
+                _wpnonce    : wpErp.nonce
             };
 
             jQuery.post( wpCRMvue.ajaxurl, data, function( resp ) {
@@ -864,7 +864,7 @@ var vm = new Vue({
                 self.feedData.end_time       = self.feedData.tpEnd;
                 self.feedData.invite_contact = self.feedData.inviteContact;
             };
-            
+
             jQuery.post( wpCRMvue.ajaxurl, self.feedData, function( resp ) {
                 if ( ! resp.success ) {
                     alert( resp.data );
@@ -903,7 +903,12 @@ var vm = new Vue({
                         return false;
                     }
 
-                    vm.feeds.splice( 0, 0, resp.data );
+                    if ( !vm.feeds ) {
+                        vm.feeds = [];
+                        vm.feeds[0] = resp.data;
+                    } else {
+                        vm.feeds.splice( 0, 0, resp.data );
+                    }
 
                     if ( vm.feeds.length > vm.limit ) {
                         vm.feeds.$remove( vm.feeds[vm.feeds.length-1] );

@@ -476,11 +476,11 @@ function erp_insert_people( $args = [], $return_object = false ) {
 
     //sensitization
     $args['email'] = strtolower( trim( $args['email'] ) );
-    
+
     if ( ! empty( $args['phone'] ) ) {
         $args['phone'] = erp_sanitize_phone_number( $args['phone'], true );
     }
-    
+
     if ( ! empty( $args['mobile'] ) ) {
         $args['mobile'] = erp_sanitize_phone_number( $args['mobile'], true );
     }
@@ -591,6 +591,8 @@ function erp_insert_people( $args = [], $return_object = false ) {
         $user = \get_user_by( 'email', $args['email'] );
     }
 
+    error_log( 'user:'.print_r($user, true) );
+
     if ( ! $existing_people->id ) {
         if ( ! $user ) {
             $user             = new stdClass();
@@ -610,9 +612,13 @@ function erp_insert_people( $args = [], $return_object = false ) {
         } elseif ( ! empty( $existing_people_by_email->email ) && ! $existing_people_by_email->hasType( $people_type ) ) {
             $is_existing_people = true;
             $people             = $existing_people_by_email;
+            $people->first_name = $args['first_name'];
+            $people->last_name  = $args['last_name'];
         } else {
             $people = \WeDevs\ERP\Framework\Models\People::create( [
                 'user_id'       => $user->ID,
+                'first_name'    => $args['first_name'],
+                'last_name'     => $args['last_name'],
                 'email'         => ! empty( $args['email'] ) ? $args['email'] : $user->user_email,
                 'website'       => ! empty( $args['website'] ) ? $args['website'] : $user->user_url,
                 'hash'          => $args['hash'],
@@ -872,7 +878,7 @@ function erp_convert_to_people( $args = [] ) {
             'first_name'  => $wp_user->first_name,
             'last_name'   => $wp_user->last_name,
             'email'       => $wp_user->user_email,
-            'company'     => get_user_meta( $wp_user->ID, 'company', true ),
+            'company'     => 'contact' === $type ? get_user_meta( $wp_user->ID, 'company', true ) : $wp_user->first_name,
             'phone'       => get_user_meta( $wp_user->ID, 'phone', true ),
             'mobile'      => get_user_meta( $wp_user->ID, 'mobile', true ),
             'other'       => get_user_meta( $wp_user->ID, 'other', true ),
