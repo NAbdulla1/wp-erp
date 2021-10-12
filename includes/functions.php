@@ -1472,8 +1472,14 @@ function erp_process_csv_export() {
 
             error_log( print_r($items,true));
 
+            $current_user_id = get_current_user_id();
+
             foreach ( $items as $index => $item ) {
                 if ( empty( $fields ) ) {
+                    continue;
+                }
+
+                if ( $type === 'contact' && ! erp_crm_is_current_user_manager() && ( ( int ) $item->contact_owner ) !== $current_user_id ) { // current user is crm-agent
                     continue;
                 }
 
